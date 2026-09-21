@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Симуляция движения автомобилей</title>
+    <p id="status">Статус: Ожидание...</p>
+</head>
+<body>
+    <h1>Симуляция движения автомобилей</h1>
+    <button onclick="control('pause')">Пауза</button>
+    <button onclick="control('resume')">Продолжить</button>
+    <button onclick="control('reset')">Заново</button>
+    <p id="command-status">Статус команды: Ожидание...</p>
+    <canvas id="city" width="800" height="400" style="border:1px solid #000000;"></canvas>
+    <script src="simulation.js"></script>
+</body>
+</html>
