@@ -1,30 +1,38 @@
 package car
 
 import (
-	"cars-simulation/internal/road"
 	"math"
+
+	"github.com/slanalan1203/Cars-sumulation/internal/road"
 )
 
 const Length = 4.0
 const MinGap = 2.0
+const DefaultDesiredSpeed = 25.0
 
-// Position — координата переднего бампера от начала текущей дороги, в метрах.
 type Car struct {
-	Position     float64
-	Speed        float64
-	DesiredSpeed float64
-	Acceleration float64
-	Braking      float64
-	Route        []int
-	RoadIndex    int
+	OriginID      int
+	DestinationID int
+	Position      float64
+	Speed         float64
+	DesiredSpeed  float64
+	Acceleration  float64
+	Braking       float64
+	Route         []int
+	RoadIndex     int
+	TripTime      float64
+	WaitTime      float64
 }
 
-// dt нужен, чтобы за один шаг не перескочить через целевую скорость.
 func (c Car) CalculateAcceleration(obstacle Obstacle, dt float64) float64 {
+	return c.CalculateAccelerationForSpeed(obstacle, dt, c.DesiredSpeed)
+}
+
+func (c Car) CalculateAccelerationForSpeed(obstacle Obstacle, dt, targetSpeed float64) float64 {
 	if dt <= 0 {
 		return 0
 	}
-	target := c.DesiredSpeed
+	target := math.Min(c.DesiredSpeed, targetSpeed)
 	if !math.IsInf(obstacle.Distance, 1) {
 		target = math.Min(target, math.Sqrt(2*c.Braking*math.Max(0, obstacle.Distance)))
 	}
@@ -38,7 +46,6 @@ func (c *Car) UpdateSpeed(acceleration, dt float64) {
 	}
 }
 
-// Advance переносит остаток пройденного пути на следующие дороги.
 func (c *Car) Advance(distance float64, roads map[int]road.Road) {
 	if distance < 0 || math.IsNaN(distance) || math.IsInf(distance, 0) {
 		return

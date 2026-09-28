@@ -1,20 +1,22 @@
 package world
 
 import (
-	"cars-simulation/internal/car"
 	"math"
+
+	"github.com/slanalan1203/Cars-sumulation/internal/car"
 )
 
-// Расстояния измеряются вдоль оставшегося маршрута: до машин,
-// красных светофоров и конца маршрута. Маршруты проверяются Validate().
 func (w *World) findObstacleAhead(carIndex int) car.Obstacle {
 	current := w.Cars[carIndex]
 	nearest := math.Inf(1)
 	offset := -current.Position
-	for _, roadID := range current.Route[current.RoadIndex:] {
+	for routeIndex, roadID := range current.Route[current.RoadIndex:] {
 		segment, ok := w.Roads[roadID]
 		if !ok || segment.Length <= 0 {
 			return car.Obstacle{Distance: 0}
+		}
+		if routeIndex > 0 && segment.Closed {
+			nearest = math.Min(nearest, offset-0.5)
 		}
 		for i, candidate := range w.Cars {
 			if i == carIndex || candidate.Finished() || candidate.Route[candidate.RoadIndex] != roadID {
@@ -35,6 +37,6 @@ func (w *World) findObstacleAhead(carIndex int) car.Obstacle {
 		}
 		offset += segment.Length
 	}
-	// Конец маршрута остаётся точкой остановки, как в исходной модели.
+	nearest = math.Min(nearest, w.roundaboutObstacle(current))
 	return car.Obstacle{Distance: math.Max(0, math.Min(nearest, offset))}
 }

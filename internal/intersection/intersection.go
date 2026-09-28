@@ -1,9 +1,13 @@
 package intersection
 
-// Intersection пока только описывает соединение дорог.
-// Управление конфликтующими потоками и резервирование проезда не реализованы.
+import "slices"
+
 type Intersection struct {
 	ID            int
 	IncomingRoads []int
 	OutgoingRoads []int
+}
+
+func (i Intersection) Allows(incoming, outgoing int) bool {
+	return slices.Contains(i.IncomingRoads, incoming) && slices.Contains(i.OutgoingRoads, outgoing)
 }

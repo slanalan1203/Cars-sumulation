@@ -8,9 +8,14 @@ type Point struct {
 }
 
 type Road struct {
-	ID     int
-	Length float64
-	Points []Point
+	ID         int
+	Kind       string
+	Level      int
+	SpeedLimit float64
+	Closed     bool
+	OneWay     bool
+	Length     float64
+	Points     []Point
 }
 
 func NewRoad(points ...Point) Road {
@@ -24,4 +29,12 @@ func NewRoad(points ...Point) Road {
 		road.Length += math.Hypot(dx, dy)
 	}
 	return road
+}
+
+func (r Road) Reverse(id int) Road {
+	points := make([]Point, len(r.Points))
+	for i := range r.Points {
+		points[i] = r.Points[len(r.Points)-1-i]
+	}
+	return Road{ID: id, Kind: r.Kind, Level: r.Level, SpeedLimit: r.SpeedLimit, Closed: r.Closed, OneWay: r.OneWay, Length: r.Length, Points: points}
 }

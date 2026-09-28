@@ -1,25 +1,34 @@
 package world
 
 import (
-	"cars-simulation/internal/car"
-	"cars-simulation/internal/intersection"
-	"cars-simulation/internal/road"
-	"cars-simulation/internal/trafficlight"
 	"math"
+
+	"github.com/slanalan1203/Cars-sumulation/internal/car"
+	"github.com/slanalan1203/Cars-sumulation/internal/intersection"
+	"github.com/slanalan1203/Cars-sumulation/internal/road"
+	"github.com/slanalan1203/Cars-sumulation/internal/trafficlight"
 )
 
-// World — состояние симуляции. Синхронизация HTTP и Step выполняется снаружи.
 type World struct {
-	Roads          map[int]road.Road
-	Cars           []car.Car
-	TrafficLights  []trafficlight.TrafficLight
-	Intersections  []intersection.Intersection
-	Paused         bool
-	SpawnInterval  float64
-	SpawnRoutes    [][]int
-	spawnElapsed   float64
-	nextSpawnRoute int
-	initial        *State
+	Roads                map[int]road.Road
+	Cars                 []car.Car
+	TrafficLights        []trafficlight.TrafficLight
+	Intersections        []intersection.Intersection
+	Roundabouts          []Roundabout
+	Buildings            []Building
+	Arrivals             map[int]int
+	CompletedTrips       int
+	TotalTravelTime      float64
+	TotalWaitTime        float64
+	Paused               bool
+	CustomMap            bool
+	SpawnInterval        float64
+	SpawnRoutes          [][]int
+	SpawnSources         []SpawnSource
+	spawnElapsed         float64
+	nextSpawnRoute       int
+	lastIntersectionRoad map[int]int
+	initial              *State
 }
 
 func (w *World) Step(dt float64) {
@@ -39,8 +48,6 @@ func (w *World) updateTrafficLights(dt float64) {
 }
 
 func (w *World) updateCars(dt float64) {
-	// Читаем препятствия из w.Cars, изменяем только next.
-	// Поэтому результат не зависит от порядка обхода машин.
 	next := append([]car.Car(nil), w.Cars...)
 	for i := range next {
 		current := &next[i]
@@ -48,11 +55,10 @@ func (w *World) updateCars(dt float64) {
 			continue
 		}
 		obstacle := w.findObstacleAhead(i)
-		acceleration := current.CalculateAcceleration(obstacle, dt)
+		acceleration := current.CalculateAccelerationForSpeed(obstacle, dt, w.speedTarget(*current, dt))
 		oldSpeed := current.Speed
 		current.UpdateSpeed(acceleration, dt)
 
-		// Сохраняем прежнюю интеграцию через среднюю скорость за шаг.
 		distance := (oldSpeed + current.Speed) / 2 * dt
 		if distance >= obstacle.Distance {
 			distance = math.Max(0, obstacle.Distance)
@@ -60,15 +66,32 @@ func (w *World) updateCars(dt float64) {
 		}
 		current.Advance(distance, w.Roads)
 	}
+	w.resolveIntersectionConflicts(next)
+	for i := range next {
+		next[i].TripTime += dt
+		if next[i].Speed < 0.5 {
+			next[i].WaitTime += dt
+		}
+	}
 	w.Cars = next
 }
 
 func (w *World) removeFinishedCars() {
 	remaining := make([]car.Car, 0, len(w.Cars))
 	for _, current := range w.Cars {
-		if !current.Finished() {
-			remaining = append(remaining, current)
+		if current.Finished() {
+			w.CompletedTrips++
+			w.TotalTravelTime += current.TripTime
+			w.TotalWaitTime += current.WaitTime
+			if current.DestinationID != 0 {
+				if w.Arrivals == nil {
+					w.Arrivals = make(map[int]int)
+				}
+				w.Arrivals[current.DestinationID]++
+			}
+			continue
 		}
+		remaining = append(remaining, current)
 	}
 	w.Cars = remaining
 }
