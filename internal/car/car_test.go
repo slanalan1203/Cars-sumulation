@@ -1,9 +1,10 @@
 package car
 
 import (
-	"cars-simulation/internal/road"
 	"math"
 	"testing"
+
+	"github.com/slanalan1203/Cars-sumulation/internal/road"
 )
 
 func TestAccelerationDoesNotOvershootTargetSpeed(t *testing.T) {

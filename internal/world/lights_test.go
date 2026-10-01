@@ -1,11 +1,12 @@
 package world
 
 import (
-	"cars-simulation/internal/car"
-	"cars-simulation/internal/road"
-	"cars-simulation/internal/trafficlight"
 	"math"
 	"testing"
+
+	"github.com/slanalan1203/Cars-sumulation/internal/car"
+	"github.com/slanalan1203/Cars-sumulation/internal/road"
+	"github.com/slanalan1203/Cars-sumulation/internal/trafficlight"
 )
 
 func TestTrafficLightRules(t *testing.T) {

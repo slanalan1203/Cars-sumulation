@@ -1,15 +1,16 @@
 package server
 
 import (
-	"cars-simulation/internal/car"
-	"cars-simulation/internal/road"
-	"cars-simulation/internal/trafficlight"
-	"cars-simulation/internal/world"
 	"encoding/json"
 	"net/http/httptest"
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/slanalan1203/Cars-sumulation/internal/car"
+	"github.com/slanalan1203/Cars-sumulation/internal/road"
+	"github.com/slanalan1203/Cars-sumulation/internal/trafficlight"
+	"github.com/slanalan1203/Cars-sumulation/internal/world"
 )
 
 func TestResetAndStateAPI(t *testing.T) {

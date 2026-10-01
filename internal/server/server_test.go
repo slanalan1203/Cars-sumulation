@@ -1,12 +1,13 @@
 package server
 
 import (
-	"cars-simulation/internal/world"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/slanalan1203/Cars-sumulation/internal/world"
 )
 
 func TestControlPause(t *testing.T) {

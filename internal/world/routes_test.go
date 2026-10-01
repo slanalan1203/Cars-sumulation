@@ -1,9 +1,10 @@
 package world
 
 import (
-	"cars-simulation/internal/car"
-	"cars-simulation/internal/road"
 	"testing"
+
+	"github.com/slanalan1203/Cars-sumulation/internal/car"
+	"github.com/slanalan1203/Cars-sumulation/internal/road"
 )
 
 func TestCarsOnDifferentBranchesDoNotBlockEachOther(t *testing.T) {

@@ -1,10 +1,11 @@
 package world
 
 import (
-	"cars-simulation/internal/car"
-	"cars-simulation/internal/road"
 	"math"
 	"testing"
+
+	"github.com/slanalan1203/Cars-sumulation/internal/car"
+	"github.com/slanalan1203/Cars-sumulation/internal/road"
 )
 
 func TestSimulationMovesToNextRoad(t *testing.T) {
